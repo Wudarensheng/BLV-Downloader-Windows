@@ -1,3 +1,8 @@
+# Avalonia必须的编译定义
+if(UNIX AND NOT APPLE)
+  target_compile_definitions(YourApp PRIVATE LINUX_X11)
+endif()
+
 cmake_minimum_required(VERSION 3.20)
 project(XamlApp LANGUAGES CXX)
 
