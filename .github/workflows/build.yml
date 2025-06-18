@@ -1,0 +1,48 @@
+name: Linux XAML Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # 防止浅克隆导致构建失效
+
+    - name: Install XAML 依赖
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          cmake \
+          ninja-build \
+          clang \
+          libgtk-3-dev \
+          libwebkit2gtk-4.0-dev
+
+    - name: Setup Dotnet (Avalonia 可选)
+      if: false  # 如果用 Avalonia 则设为 true
+      uses: actions/setup-dotnet@v3
+    
+    - name: Configure CMake
+      run: |
+        mkdir -p build && cd build
+        cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      working-directory: build
+      run: cmake --build . --parallel
+
+    - name: Archive binaries
+      uses: actions/upload-artifact@v3
+      with:
+        name: xaml-app
+        path: |
+          build/your-app-name  # 替换为实际可执行文件名
+          build/*.so           # 动态库文件（如果有）
